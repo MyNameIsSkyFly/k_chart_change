@@ -46,6 +46,8 @@ class KChartWidget extends StatefulWidget {
   final bool isTrendLine;
   final double xFrontPadding;
   final String? iconName;
+  final double mScaleX;
+  final Function(double)? notiScale;
 
   KChartWidget(this.datas,
       this.chartStyle,
@@ -74,6 +76,8 @@ class KChartWidget extends StatefulWidget {
         this.isOnDrag,
         this.verticalTextAlignment = VerticalTextAlignment.left,
         this.iconName,
+        this.mScaleX = 0.5,
+        this.notiScale,
       });
 
   @override
@@ -112,6 +116,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    mScaleX = widget.mScaleX;
+    _lastScale = mScaleX;
     mInfoWindowStream = StreamController<InfoWindowEntity?>();
     mScrollX = mSelectX = widget.xFrontPadding / mScaleX / 5 * 3;
   }
@@ -131,8 +137,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     if (widget.datas != null && widget.datas!.isEmpty) {
+      mScaleX = widget.mScaleX;
       mScrollX = mSelectX = widget.xFrontPadding / mScaleX / 5 * 3;
-      mScaleX = 0.5;
       showBtn = false;
     }
 
@@ -366,7 +372,12 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     _controller!.forward();
   }
 
-  void notifyChanged() => setState(() {});
+  void notifyChanged() {
+    setState(() {});
+    if(widget.notiScale != null) {
+      widget.notiScale!(mScaleX);
+    }
+  }
 
   late List<String> infos;
 
