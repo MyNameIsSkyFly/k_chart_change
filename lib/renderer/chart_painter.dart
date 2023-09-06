@@ -241,8 +241,8 @@ class ChartPainter extends BaseChartPainter {
         y = size.height - (mBottomPadding - tp.height) / 2 - tp.height;
         x = columnSpace * i - tp.width / 2;
         // Prevent date text out of canvas
-        if (x < 0) x = 0;
-        if (x > size.width - tp.width) x = size.width - tp.width;
+        if (x < 0) x = - tp.width / 2;
+        if (x > size.width - tp.width) x = size.width - tp.width/2;
         tp.paint(canvas, Offset(x, y));
       }
     }
