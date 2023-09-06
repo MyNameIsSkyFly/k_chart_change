@@ -13,7 +13,7 @@ double? trendLineContentRec;
 class MainRenderer extends BaseChartRenderer<CandleEntity> {
   late double mCandleWidth;
   late double mCandleLineWidth;
-  MainState state;
+  List<MainState> state;
   bool isLine;
 
   //绘制的内容区域
@@ -27,8 +27,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   late Paint mLinePaint;
   final VerticalTextAlignment verticalTextAlignment;
 
-  MainRenderer(
-      Rect mainRect,
+  MainRenderer(Rect mainRect,
       double maxValue,
       double minValue,
       double topPadding,
@@ -41,12 +40,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       this.verticalTextAlignment,
       [this.maDayList = const [5, 10, 20]])
       : super(
-            chartRect: mainRect,
-            maxValue: maxValue,
-            minValue: minValue,
-            topPadding: topPadding,
-            fixedLength: fixedLength,
-            gridColor: chartColors.gridColor) {
+      chartRect: mainRect,
+      maxValue: maxValue,
+      minValue: minValue,
+      topPadding: topPadding,
+      fixedLength: fixedLength,
+      gridColor: chartColors.gridColor) {
     mCandleWidth = this.chartStyle.candleWidth;
     mCandleLineWidth = this.chartStyle.candleLineWidth;
     mLinePaint = Paint()
@@ -69,13 +68,16 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   @override
   void drawText(Canvas canvas, CandleEntity data, double x) {
     if (isLine == true) return;
-    TextSpan? span;
-    if (state == MainState.MA) {
-      span = TextSpan(
+    TextSpan? maSpan;
+    TextSpan? bollSpan;
+
+    if (state.contains(MainState.MA)) {
+      maSpan = TextSpan(
         children: _createMATextSpan(data),
       );
-    } else if (state == MainState.BOLL) {
-      span = TextSpan(
+    }
+    if (state.contains(MainState.BOLL)) {
+      bollSpan = TextSpan(
         children: [
           if (data.up != 0)
             TextSpan(
@@ -92,10 +94,17 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         ],
       );
     }
-    if (span == null) return;
-    TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
-    tp.layout();
-    tp.paint(canvas, Offset(x, chartRect.top - topPadding));
+    if (maSpan == null && bollSpan == null) return;
+    if (maSpan != null) {
+      TextPainter tp = TextPainter(text: maSpan, textDirection: TextDirection.ltr);
+      tp.layout();
+      tp.paint(canvas, Offset(x, chartRect.top - topPadding));
+    }
+    if (bollSpan != null) {
+      TextPainter tp = TextPainter(text: bollSpan, textDirection: TextDirection.ltr);
+      tp.layout();
+      tp.paint(canvas, Offset(x, chartRect.top - topPadding/2));
+    }
   }
 
   List<InlineSpan> _createMATextSpan(CandleEntity data) {
@@ -118,9 +127,10 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       drawPolyline(lastPoint.close, curPoint.close, canvas, lastX, curX);
     } else {
       drawCandle(curPoint, canvas, curX);
-      if (state == MainState.MA) {
+      if (state.contains(MainState.MA)) {
         drawMaLine(lastPoint, curPoint, canvas, lastX, curX);
-      } else if (state == MainState.BOLL) {
+      }
+      if (state.contains(MainState.BOLL)) {
         drawBollLine(lastPoint, curPoint, canvas, lastX, curX);
       }
     }
@@ -243,7 +253,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
       TextSpan span = TextSpan(text: "${format(value)}", style: textStyle);
       TextPainter tp =
-          TextPainter(text: span, textDirection: TextDirection.ltr);
+      TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();
 
       double offsetX;

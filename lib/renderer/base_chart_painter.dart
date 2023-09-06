@@ -14,7 +14,7 @@ export 'package:flutter/material.dart'
 abstract class BaseChartPainter extends CustomPainter {
   static double maxScrollX = 0.0;
   List<KLineEntity>? datas;
-  MainState mainState;
+  List<MainState> mainState;
 
   SecondaryState secondaryState;
 
@@ -53,7 +53,7 @@ abstract class BaseChartPainter extends CustomPainter {
   double mDataLen = 0.0; //数据占屏幕总长度
   final ChartStyle chartStyle;
   late double mPointWidth;
-  List<String> mFormats = [yyyy, '/', mm, '/', dd, ' ', HH, ':', nn]; //格式化时间
+  List<String> mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]; //格式化时间
   double xFrontPadding;
 
   BaseChartPainter(this.chartStyle, {
@@ -64,7 +64,7 @@ abstract class BaseChartPainter extends CustomPainter {
     required this.selectX,
     required this.xFrontPadding,
     this.isOnTap = false,
-    this.mainState = MainState.MA,
+    this.mainState = const [MainState.MA],
     this.volHidden = false,
     this.isTapShowInfoDialog = false,
     this.secondaryState = SecondaryState.MACD,
@@ -88,7 +88,7 @@ abstract class BaseChartPainter extends CustomPainter {
     }
 
     if (mItemCount < 2) {
-      mFormats = [yyyy, '/', mm, '/', dd, ' ', HH, ':', nn];
+      mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn];
       return;
     }
 
@@ -98,13 +98,13 @@ abstract class BaseChartPainter extends CustomPainter {
     time ~/= 1000;
     //月线
     if (time >= 24 * 60 * 60 * 28)
-      mFormats = [yy, '/', mm];
+      mFormats = [yy, '-', mm];
     //日线等
     else if (time >= 24 * 60 * 60)
-      mFormats = [yy, '/', mm, '/', dd];
+      mFormats = [yy, '-', mm, '-', dd];
     //小时线等
     else
-      mFormats = [mm, '/', dd, ' ', HH, ':', nn];
+      mFormats = [mm, '-', dd, ' ', HH, ':', nn];
   }
 
   @override
@@ -211,10 +211,10 @@ abstract class BaseChartPainter extends CustomPainter {
 
   void getMainMaxMinValue(KLineEntity item, int i) {
     double maxPrice, minPrice;
-    if (mainState == MainState.MA) {
+    if (mainState.contains(MainState.MA)) {
       maxPrice = max(item.high, _findMaxMA(item.maValueList ?? [0]));
       minPrice = min(item.low, _findMinMA(item.maValueList ?? [0]));
-    } else if (mainState == MainState.BOLL) {
+    } else if (mainState.contains(MainState.BOLL)) {
       maxPrice = max(item.up ?? 0, item.high);
       minPrice = min(item.dn ?? 0, item.low);
     } else {

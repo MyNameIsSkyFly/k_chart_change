@@ -16,7 +16,7 @@ class TimeFormat {
 
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity>? datas;
-  final MainState mainState;
+  final List<MainState> mainState;
   final bool volHidden;
   final SecondaryState secondaryState;
   final Function()? onSecondaryTap;
@@ -54,7 +54,7 @@ class KChartWidget extends StatefulWidget {
       this.chartColors, {
         required this.isTrendLine,
         this.xFrontPadding = 100,
-        this.mainState = MainState.MA,
+        this.mainState = const [MainState.MA],
         this.secondaryState = SecondaryState.MACD,
         this.onSecondaryTap,
         this.volHidden = false,
