@@ -249,7 +249,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             _onFling(velocity);
           },
           onLongPressStart: (details) {
-            isOnTap = false;
+            isOnTap = true;
             isLongPress = true;
             if ((mSelectX != details.localPosition.dx || mSelectY != details.globalPosition.dy) &&
                 !widget.isTrendLine) {
