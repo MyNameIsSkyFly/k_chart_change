@@ -402,7 +402,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             if (entityAmount != null) '${NumberUtil.format(entityAmount)}'
           ];
           final dialogPadding = 4.0;
-          final dialogWidth = mWidth / 4;
+          final dialogWidth = mWidth / 3;
           return Container(
             margin: EdgeInsets.only(
                 left: snapshot.data!.isLeft ? dialogPadding : mWidth - dialogWidth - dialogPadding,
