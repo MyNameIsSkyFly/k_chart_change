@@ -5,6 +5,7 @@ import '../k_chart_widget.dart' show MainState;
 import 'base_chart_renderer.dart';
 
 enum VerticalTextAlignment { left, right }
+
 //For TrendLine
 double? trendLineMax;
 double? trendLineScale;
@@ -27,7 +28,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   late Paint mLinePaint;
   final VerticalTextAlignment verticalTextAlignment;
 
-  MainRenderer(Rect mainRect,
+  MainRenderer(
+      Rect mainRect,
       double maxValue,
       double minValue,
       double topPadding,
@@ -40,12 +42,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       this.verticalTextAlignment,
       [this.maDayList = const [5, 10, 20]])
       : super(
-      chartRect: mainRect,
-      maxValue: maxValue,
-      minValue: minValue,
-      topPadding: topPadding,
-      fixedLength: fixedLength,
-      gridColor: chartColors.gridColor) {
+            chartRect: mainRect,
+            maxValue: maxValue,
+            minValue: minValue,
+            topPadding: topPadding,
+            fixedLength: fixedLength,
+            gridColor: chartColors.gridColor) {
     mCandleWidth = this.chartStyle.candleWidth;
     mCandleLineWidth = this.chartStyle.candleLineWidth;
     mLinePaint = Paint()
@@ -53,10 +55,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       ..style = PaintingStyle.stroke
       ..strokeWidth = mLineStrokeWidth
       ..color = this.chartColors.kLineColor;
-    _contentRect = Rect.fromLTRB(
-        chartRect.left,
-        chartRect.top + _contentPadding,
-        chartRect.right,
+    _contentRect = Rect.fromLTRB(chartRect.left, chartRect.top + _contentPadding, chartRect.right,
         chartRect.bottom - _contentPadding);
     if (maxValue == minValue) {
       maxValue *= 1.5;
@@ -85,12 +84,10 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
                 style: getTextStyle(this.chartColors.ma5Color)),
           if (data.mb != 0)
             TextSpan(
-                text: "UB:${format(data.up)}    ",
-                style: getTextStyle(this.chartColors.ma10Color)),
+                text: "UB:${format(data.up)}    ", style: getTextStyle(this.chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
-                text: "LB:${format(data.dn)}    ",
-                style: getTextStyle(this.chartColors.ma30Color)),
+                text: "LB:${format(data.dn)}    ", style: getTextStyle(this.chartColors.ma30Color)),
         ],
       );
     }
@@ -100,10 +97,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       tp.layout();
       tp.paint(canvas, Offset(x, chartRect.top - topPadding));
     }
-    if (bollSpan != null) {
+    if (bollSpan != null && maSpan == null) {
       TextPainter tp = TextPainter(text: bollSpan, textDirection: TextDirection.ltr);
       tp.layout();
-      tp.paint(canvas, Offset(x, chartRect.top - topPadding/2));
+      tp.paint(canvas, Offset(x, chartRect.top - topPadding));
+    }
+    if (bollSpan != null && maSpan != null) {
+      TextPainter tp = TextPainter(text: bollSpan, textDirection: TextDirection.ltr);
+      tp.layout();
+      tp.paint(canvas, Offset(x, chartRect.top - topPadding / 2));
     }
   }
 
@@ -121,8 +123,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   }
 
   @override
-  void drawChart(CandleEntity lastPoint, CandleEntity curPoint, double lastX,
-      double curX, Size size, Canvas canvas) {
+  void drawChart(CandleEntity lastPoint, CandleEntity curPoint, double lastX, double curX,
+      Size size, Canvas canvas) {
     if (isLine) {
       drawPolyline(lastPoint.close, curPoint.close, canvas, lastX, curX);
     } else {
@@ -143,8 +145,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     ..isAntiAlias = true;
 
   //画折线图
-  drawPolyline(double lastPrice, double curPrice, Canvas canvas, double lastX,
-      double curX) {
+  drawPolyline(double lastPrice, double curPrice, Canvas canvas, double lastX, double curX) {
 //    drawLine(lastPrice + 100, curPrice + 100, canvas, lastX, curX, ChartColors.kLineColor);
     mLinePath ??= Path();
 
@@ -157,8 +158,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 //    }
     if (lastX == curX) lastX = 0; //起点位置填充
     mLinePath!.moveTo(lastX, getY(lastPrice));
-    mLinePath!.cubicTo((lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2,
-        getY(curPrice), curX, getY(curPrice));
+    mLinePath!.cubicTo((lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice),
+        curX, getY(curPrice));
 
     //画阴影
     mLineFillShader ??= LinearGradient(
@@ -166,53 +167,49 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       end: Alignment.bottomCenter,
       tileMode: TileMode.clamp,
       colors: [this.chartColors.lineFillColor, this.chartColors.lineFillInsideColor],
-    ).createShader(Rect.fromLTRB(
-        chartRect.left, chartRect.top, chartRect.right, chartRect.bottom));
+    ).createShader(Rect.fromLTRB(chartRect.left, chartRect.top, chartRect.right, chartRect.bottom));
     mLineFillPaint..shader = mLineFillShader;
 
     mLineFillPath ??= Path();
 
     mLineFillPath!.moveTo(lastX, chartRect.height + chartRect.top);
     mLineFillPath!.lineTo(lastX, getY(lastPrice));
-    mLineFillPath!.cubicTo((lastX + curX) / 2, getY(lastPrice),
-        (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));
+    mLineFillPath!.cubicTo((lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice),
+        curX, getY(curPrice));
     mLineFillPath!.lineTo(curX, chartRect.height + chartRect.top);
     mLineFillPath!.close();
 
     canvas.drawPath(mLineFillPath!, mLineFillPaint);
     mLineFillPath!.reset();
 
-    canvas.drawPath(mLinePath!,
-        mLinePaint..strokeWidth = (mLineStrokeWidth / scaleX).clamp(0.1, 1.0));
+    canvas.drawPath(
+        mLinePath!, mLinePaint..strokeWidth = (mLineStrokeWidth / scaleX).clamp(0.1, 1.0));
     mLinePath!.reset();
   }
 
-  void drawMaLine(CandleEntity lastPoint, CandleEntity curPoint, Canvas canvas,
-      double lastX, double curX) {
+  void drawMaLine(
+      CandleEntity lastPoint, CandleEntity curPoint, Canvas canvas, double lastX, double curX) {
     for (int i = 0; i < (curPoint.maValueList?.length ?? 0); i++) {
       if (i == 3) {
         break;
       }
       if (lastPoint.maValueList?[i] != 0) {
-        drawLine(lastPoint.maValueList?[i], curPoint.maValueList?[i], canvas,
-            lastX, curX, this.chartColors.getMAColor(i));
+        drawLine(lastPoint.maValueList?[i], curPoint.maValueList?[i], canvas, lastX, curX,
+            this.chartColors.getMAColor(i));
       }
     }
   }
 
-  void drawBollLine(CandleEntity lastPoint, CandleEntity curPoint,
-      Canvas canvas, double lastX, double curX) {
+  void drawBollLine(
+      CandleEntity lastPoint, CandleEntity curPoint, Canvas canvas, double lastX, double curX) {
     if (lastPoint.up != 0) {
-      drawLine(lastPoint.up, curPoint.up, canvas, lastX, curX,
-          this.chartColors.ma10Color);
+      drawLine(lastPoint.up, curPoint.up, canvas, lastX, curX, this.chartColors.ma10Color);
     }
     if (lastPoint.mb != 0) {
-      drawLine(lastPoint.mb, curPoint.mb, canvas, lastX, curX,
-          this.chartColors.ma5Color);
+      drawLine(lastPoint.mb, curPoint.mb, canvas, lastX, curX, this.chartColors.ma5Color);
     }
     if (lastPoint.dn != 0) {
-      drawLine(lastPoint.dn, curPoint.dn, canvas, lastX, curX,
-          this.chartColors.ma30Color);
+      drawLine(lastPoint.dn, curPoint.dn, canvas, lastX, curX, this.chartColors.ma30Color);
     }
   }
 
@@ -229,20 +226,16 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         open = close + mCandleLineWidth;
       }
       chartPaint.color = this.chartColors.upColor;
-      canvas.drawRect(
-          Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
-      canvas.drawRect(
-          Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+      canvas.drawRect(Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
+      canvas.drawRect(Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
     } else if (close > open) {
       // 实体高度>= CandleLineWidth
       if (close - open < mCandleLineWidth) {
         open = close - mCandleLineWidth;
       }
       chartPaint.color = this.chartColors.dnColor;
-      canvas.drawRect(
-          Rect.fromLTRB(curX - r, open, curX + r, close), chartPaint);
-      canvas.drawRect(
-          Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+      canvas.drawRect(Rect.fromLTRB(curX - r, open, curX + r, close), chartPaint);
+      canvas.drawRect(Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
     }
   }
 
@@ -252,8 +245,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
       TextSpan span = TextSpan(text: "${format(value)}", style: textStyle);
-      TextPainter tp =
-      TextPainter(text: span, textDirection: TextDirection.ltr);
+      TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();
 
       double offsetX;
@@ -269,8 +261,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       if (i == 0) {
         tp.paint(canvas, Offset(offsetX, topPadding));
       } else {
-        tp.paint(
-            canvas, Offset(offsetX, rowSpace * i - tp.height + topPadding));
+        tp.paint(canvas, Offset(offsetX, rowSpace * i - tp.height + topPadding));
       }
     }
   }
