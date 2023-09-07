@@ -12,6 +12,7 @@ enum SecondaryState { MACD, KDJ, RSI, WR, CCI, NONE }
 class TimeFormat {
   static const List<String> YEAR_MONTH_DAY = [yyyy, '/', mm, '/', dd];
   static const List<String> YEAR_MONTH_DAY_WITH_HOUR = [yyyy, '/', mm, '/', dd, ' ', HH, ':', nn];
+  static const List<String> MONTH_DAY_WITH_HOUR = [mm, '/', dd, ' ', HH, ':', nn];
 }
 
 class KChartWidget extends StatefulWidget {
@@ -49,48 +50,46 @@ class KChartWidget extends StatefulWidget {
   final double mScaleX;
   final Function(double)? notiScale;
 
-  KChartWidget(this.datas,
-      this.chartStyle,
-      this.chartColors, {
-        required this.isTrendLine,
-        this.xFrontPadding = 100,
-        this.mainState = const [MainState.MA],
-        this.secondaryState = SecondaryState.MACD,
-        this.onSecondaryTap,
-        this.volHidden = false,
-        this.isLine = false,
-        this.isTapShowInfoDialog = false,
-        this.hideGrid = false,
-        @Deprecated('Use `translations` instead.') this.isChinese = false,
-        this.showNowPrice = true,
-        this.showInfoDialog = true,
-        this.materialInfoDialog = true,
-        this.translations = kChartTranslations,
-        this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
-        this.onLoadMore,
-        this.fixedLength = 2,
-        this.maDayList = const [5, 10, 20],
-        this.flingTime = 600,
-        this.flingRatio = 0.5,
-        this.flingCurve = Curves.decelerate,
-        this.isOnDrag,
-        this.verticalTextAlignment = VerticalTextAlignment.left,
-        this.iconName,
-        this.mScaleX = 0.5,
-        this.notiScale,
-      });
+  KChartWidget(
+    this.datas,
+    this.chartStyle,
+    this.chartColors, {
+    required this.isTrendLine,
+    this.xFrontPadding = 100,
+    this.mainState = const [MainState.MA],
+    this.secondaryState = SecondaryState.MACD,
+    this.onSecondaryTap,
+    this.volHidden = false,
+    this.isLine = false,
+    this.isTapShowInfoDialog = false,
+    this.hideGrid = false,
+    @Deprecated('Use `translations` instead.') this.isChinese = false,
+    this.showNowPrice = true,
+    this.showInfoDialog = true,
+    this.materialInfoDialog = true,
+    this.translations = kChartTranslations,
+    this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
+    this.onLoadMore,
+    this.fixedLength = 2,
+    this.maDayList = const [5, 10, 20],
+    this.flingTime = 600,
+    this.flingRatio = 0.5,
+    this.flingCurve = Curves.decelerate,
+    this.isOnDrag,
+    this.verticalTextAlignment = VerticalTextAlignment.left,
+    this.iconName,
+    this.mScaleX = 0.5,
+    this.notiScale,
+  });
 
   @override
   _KChartWidgetState createState() => _KChartWidgetState();
 }
 
 class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
-  double mScaleX = 0.5,
-      mScrollX = 0.0,
-      mSelectX = 0.0;
+  double mScaleX = 0.5, mScrollX = 0.0, mSelectX = 0.0;
   StreamController<InfoWindowEntity?>? mInfoWindowStream;
-  double mHeight = 0,
-      mWidth = 0;
+  double mHeight = 0, mWidth = 0;
   AnimationController? _controller;
   Animation<double>? aniX;
 
@@ -108,10 +107,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   double _lastScale = 0.5;
-  bool isScale = false,
-      isDrag = false,
-      isLongPress = false,
-      isOnTap = false;
+  bool isScale = false, isDrag = false, isLongPress = false, isOnTap = false;
 
   @override
   void initState() {
@@ -374,7 +370,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
 
   void notifyChanged() {
     setState(() {});
-    if(widget.notiScale != null) {
+    if (widget.notiScale != null) {
       widget.notiScale!(mScaleX);
     }
   }
@@ -406,7 +402,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             if (entityAmount != null) '${NumberUtil.format(entityAmount)}'
           ];
           final dialogPadding = 4.0;
-          final dialogWidth = mWidth / 3;
+          final dialogWidth = mWidth / 4;
           return Container(
             margin: EdgeInsets.only(
                 left: snapshot.data!.isLeft ? dialogPadding : mWidth - dialogWidth - dialogPadding,
@@ -414,6 +410,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             width: dialogWidth,
             decoration: BoxDecoration(
                 color: widget.chartColors.selectFillColor,
+                borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: widget.chartColors.selectBorderColor, width: 0.5)),
             child: ListView.builder(
               padding: EdgeInsets.all(dialogPadding),
@@ -455,10 +452,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
         : infoWidget;
   }
 
-  String getDate(int? date) =>
-      dateFormat(
-          DateTime.fromMillisecondsSinceEpoch(date ?? DateTime
-              .now()
-              .millisecondsSinceEpoch),
-          widget.timeFormat);
+  String getDate(int? date) => dateFormat(
+      DateTime.fromMillisecondsSinceEpoch(date ?? DateTime.now().millisecondsSinceEpoch),
+      widget.timeFormat);
 }
