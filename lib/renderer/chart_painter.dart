@@ -278,31 +278,22 @@ class ChartPainter extends BaseChartPainter {
     double textHeight = tp.height;
     double textWidth = tp.width + 5;
     double r = textHeight / 2 + w2;
+
     if (translateXtoX(getX(index)) < mWidth / 2) {
       isLeft = false;
       x = 5;
-      Path path = new Path();
-      path.moveTo(x, y - r);
-      path.lineTo(x, y + r);
-      path.lineTo(textWidth + 2 * w1, y + r);
-      path.lineTo(textWidth + 2 * w1, y);
-      path.lineTo(textWidth + 2 * w1, y - r);
-      path.close();
-      canvas.drawPath(path, selectPointPaint);
-      canvas.drawPath(path, selectorBorderPaint);
+      RRect rrect = RRect.fromRectAndRadius(
+        Rect.fromLTRB(x, y-r, textWidth + 2 * w1, y + r),
+        Radius.circular(2),);
+      canvas.drawRRect(rrect, selectPointPaint);
       tp.paint(canvas, Offset(x + w1, y - textHeight / 2));
     } else {
       isLeft = true;
       x = mWidth - textWidth - 1 - 2 * w1 - w2;
-      Path path = new Path();
-      path.moveTo(x, y);
-      path.lineTo(x, y + r);
-      path.lineTo(mWidth - 5, y + r);
-      path.lineTo(mWidth - 5, y - r);
-      path.lineTo(x, y - r);
-      path.close();
-      canvas.drawPath(path, selectPointPaint);
-      canvas.drawPath(path, selectorBorderPaint);
+      RRect rrect = RRect.fromRectAndRadius(
+        Rect.fromLTRB(x, y-r, mWidth - 5, y + r),
+        Radius.circular(2),);
+      canvas.drawRRect(rrect, selectPointPaint);
       tp.paint(canvas, Offset(x + w1 + w2, y - textHeight / 2));
     }
 
@@ -319,11 +310,13 @@ class ChartPainter extends BaseChartPainter {
       x = mWidth - 1 - textWidth / 2 - w1;
     }
     double baseLine = textHeight / 2;
-    canvas.drawRect(
-        Rect.fromLTRB(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r),
+    RRect rrect = RRect.fromRectAndRadius(
+      Rect.fromLTRB(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r),
+      Radius.circular(2),);
+    canvas.drawRRect(
+        rrect,
         selectPointPaint);
-    canvas.drawRect(
-        Rect.fromLTRB(x - textWidth / 2 - w1, y, x + textWidth / 2 + w1, y + baseLine + r),
+    canvas.drawRRect(rrect,
         selectorBorderPaint);
 
     dateTp.paint(canvas, Offset(x - textWidth / 2, y));
@@ -505,16 +498,13 @@ class ChartPainter extends BaseChartPainter {
       Rect.fromLTRB(offsetX, top, offsetX + tp.width + 10, top + tp.height + 6),
       Radius.circular(2),);
     canvas.drawRRect(rrect, Paint()
-      ..color = value >= datas!.last.open
-          ? this.chartColors.nowPriceUpColor
-          : this.chartColors.nowPriceDnColor);
+      ..color = Color(0xFF121212));
     canvas.drawRRect(rrect, Paint()
       ..strokeWidth = 0.5
       ..isAntiAlias = true
       ..color = this.chartColors.nowPriceTextColor
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke);
-
 
     // canvas.drawRect(
     //     Rect.fromLTRB(offsetX, top, offsetX + tp.width, top + tp.height), nowPricePaint);
