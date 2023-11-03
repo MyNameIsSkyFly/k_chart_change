@@ -89,12 +89,12 @@ class ChartPainter extends BaseChartPainter {
     selectPointPaint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = 0.5
-      ..color = this.chartColors.selectFillColor;
+      ..color = Colors.white;
     selectorBorderPaint = Paint()
       ..isAntiAlias = true
       ..strokeWidth = 0.5
       ..style = PaintingStyle.stroke
-      ..color = this.chartColors.selectBorderColor;
+      ..color = Colors.white;
     nowPricePaint = Paint()
       ..strokeWidth = this.chartStyle.nowPriceLineWidth
       ..isAntiAlias = true;
@@ -270,22 +270,23 @@ class ChartPainter extends BaseChartPainter {
     TextPainter tp;
     if (!isInVolRect(Offset(selectX, y))) {
       tp =
-          getTextPainter(getMainYValue(y).toStringAsFixed(fixedLength), chartColors.crossTextColor);
+          getTextPainter(getMainYValue(y).toStringAsFixed(fixedLength), chartColors.crossTextColor,
+              style: TextStyle(fontSize: 12.0, color: chartColors.crossTextColor));
     } else {
       tp = getTextPainter(
           "${NumberUtil.format(mVolRenderer!.getVolYValue(y))}", chartColors.crossTextColor);
     }
     double textHeight = tp.height;
-    double textWidth = tp.width;
+    double textWidth = tp.width + 5;
     double r = textHeight / 2 + w2;
     if (translateXtoX(getX(index)) < mWidth / 2) {
       isLeft = false;
-      x = 1;
+      x = 5;
       Path path = new Path();
       path.moveTo(x, y - r);
       path.lineTo(x, y + r);
       path.lineTo(textWidth + 2 * w1, y + r);
-      path.lineTo(textWidth + 2 * w1 + w2, y);
+      path.lineTo(textWidth + 2 * w1, y);
       path.lineTo(textWidth + 2 * w1, y - r);
       path.close();
       canvas.drawPath(path, selectPointPaint);
@@ -296,15 +297,16 @@ class ChartPainter extends BaseChartPainter {
       x = mWidth - textWidth - 1 - 2 * w1 - w2;
       Path path = new Path();
       path.moveTo(x, y);
-      path.lineTo(x + w2, y + r);
-      path.lineTo(mWidth - 2, y + r);
-      path.lineTo(mWidth - 2, y - r);
-      path.lineTo(x + w2, y - r);
+      path.lineTo(x, y + r);
+      path.lineTo(mWidth - 5, y + r);
+      path.lineTo(mWidth - 5, y - r);
+      path.lineTo(x, y - r);
       path.close();
       canvas.drawPath(path, selectPointPaint);
       canvas.drawPath(path, selectorBorderPaint);
       tp.paint(canvas, Offset(x + w1 + w2, y - textHeight / 2));
     }
+
 
     TextPainter dateTp = getTextPainter(getDate(point.time), chartColors.crossTextColor);
     textWidth = dateTp.width;
@@ -492,7 +494,7 @@ class ChartPainter extends BaseChartPainter {
         offsetX = 0;
         break;
       case VerticalTextAlignment.right:
-        offsetX = mWidth - tp.width - 10;
+        offsetX = mWidth - tp.width - 14;
         break;
     }
 
@@ -514,7 +516,7 @@ class ChartPainter extends BaseChartPainter {
 
     // canvas.drawRect(
     //     Rect.fromLTRB(offsetX, top, offsetX + tp.width, top + tp.height), nowPricePaint);
-    tp.paint(canvas, Offset(offsetX+5, top+3));
+    tp.paint(canvas, Offset(offsetX + 5, top + 3));
   }
 
 //For TrendLine
@@ -623,11 +625,11 @@ class ChartPainter extends BaseChartPainter {
     }
   }
 
-  TextPainter getTextPainter(text, color) {
+  TextPainter getTextPainter(text, color, {TextStyle? style}) {
     if (color == null) {
       color = this.chartColors.defaultTextColor;
     }
-    TextSpan span = TextSpan(text: "$text", style: getTextStyle(color));
+    TextSpan span = TextSpan(text: "$text", style: style ?? getTextStyle(color));
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     return tp;
