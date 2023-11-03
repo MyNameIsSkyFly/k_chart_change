@@ -51,36 +51,36 @@ class KChartWidget extends StatefulWidget {
   final Function(double)? notiScale;
 
   KChartWidget(
-    this.datas,
-    this.chartStyle,
-    this.chartColors, {
-    required this.isTrendLine,
-    this.xFrontPadding = 100,
-    this.mainState = const [MainState.MA],
-    this.secondaryState = SecondaryState.MACD,
-    this.onSecondaryTap,
-    this.volHidden = false,
-    this.isLine = false,
-    this.isTapShowInfoDialog = false,
-    this.hideGrid = false,
-    @Deprecated('Use `translations` instead.') this.isChinese = false,
-    this.showNowPrice = true,
-    this.showInfoDialog = true,
-    this.materialInfoDialog = true,
-    this.translations = kChartTranslations,
-    this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
-    this.onLoadMore,
-    this.fixedLength = 2,
-    this.maDayList = const [5, 10, 20],
-    this.flingTime = 600,
-    this.flingRatio = 0.5,
-    this.flingCurve = Curves.decelerate,
-    this.isOnDrag,
-    this.verticalTextAlignment = VerticalTextAlignment.left,
-    this.iconName,
-    this.mScaleX = 0.5,
-    this.notiScale,
-  });
+      this.datas,
+      this.chartStyle,
+      this.chartColors, {
+        required this.isTrendLine,
+        this.xFrontPadding = 100,
+        this.mainState = const [MainState.MA],
+        this.secondaryState = SecondaryState.MACD,
+        this.onSecondaryTap,
+        this.volHidden = false,
+        this.isLine = false,
+        this.isTapShowInfoDialog = false,
+        this.hideGrid = false,
+        @Deprecated('Use `translations` instead.') this.isChinese = false,
+        this.showNowPrice = true,
+        this.showInfoDialog = true,
+        this.materialInfoDialog = true,
+        this.translations = kChartTranslations,
+        this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
+        this.onLoadMore,
+        this.fixedLength = 2,
+        this.maDayList = const [5, 10, 20],
+        this.flingTime = 600,
+        this.flingRatio = 0.5,
+        this.flingCurve = Curves.decelerate,
+        this.isOnDrag,
+        this.verticalTextAlignment = VerticalTextAlignment.left,
+        this.iconName,
+        this.mScaleX = 0.5,
+        this.notiScale,
+      });
 
   @override
   _KChartWidgetState createState() => _KChartWidgetState();
@@ -401,32 +401,52 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             '${NumberUtil.format(entity.vol)}',
             if (entityAmount != null) '${NumberUtil.format(entityAmount)}'
           ];
-          final dialogPadding = 4.0;
-          final dialogWidth = mWidth / 3;
-          return Container(
-            margin: EdgeInsets.only(
-                left: snapshot.data!.isLeft ? dialogPadding : mWidth - dialogWidth - dialogPadding,
-                top: 25),
-            width: dialogWidth,
-            decoration: BoxDecoration(
+          final translations =
+          widget.isChinese ? kChartTranslations['zh_CN']! : widget.translations.of(context);
+          return Align(
+            alignment: snapshot.data!.isLeft ? Alignment.topLeft : Alignment.topRight,
+            child: Container(
+              margin: EdgeInsets.only(left: 15, right: 15, top: 20),
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
                 color: widget.chartColors.selectFillColor,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: widget.chartColors.selectBorderColor, width: 0.5)),
-            child: ListView.builder(
-              padding: EdgeInsets.all(dialogPadding),
-              itemCount: infos.length,
-              itemExtent: 14.0,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                final translations = widget.isChinese
-                    ? kChartTranslations['zh_CN']!
-                    : widget.translations.of(context);
-
-                return _buildItem(
-                  infos[index],
-                  translations.byIndex(index),
-                );
-              },
+                border: Border.all(color: widget.chartColors.selectBorderColor, width: 0.5),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      infos.length,
+                          (index) => Padding(
+                        padding: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
+                        child: Text(
+                          translations.byIndex(index),
+                          style: TextStyle(
+                            color: widget.chartColors.infoWindowTitleColor,
+                            fontSize: 10.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      infos.length,
+                          (index) => Padding(
+                        padding: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
+                        child: _buildValueItem(infos[index]),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         });
@@ -438,18 +458,34 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       color = widget.chartColors.infoWindowUpColor;
     else if (info.startsWith("-")) color = widget.chartColors.infoWindowDnColor;
     final infoWidget = Row(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Expanded(
-            child: Text("$infoName",
-                style: TextStyle(color: widget.chartColors.infoWindowTitleColor, fontSize: 10.0))),
+        Text(
+          "$infoName",
+          style: TextStyle(
+            color: widget.chartColors.infoWindowTitleColor,
+            fontSize: 10.0,
+          ),
+        ),
         Text(info, style: TextStyle(color: color, fontSize: 10.0)),
       ],
     );
     return widget.materialInfoDialog
         ? Material(color: Colors.transparent, child: infoWidget)
         : infoWidget;
+  }
+
+  Widget _buildValueItem(String info) {
+    Color color = widget.chartColors.infoWindowNormalColor;
+    if (info.startsWith("+"))
+      color = widget.chartColors.infoWindowUpColor;
+    else if (info.startsWith("-")) color = widget.chartColors.infoWindowDnColor;
+    final infoWidget = Text(info, style: TextStyle(color: color, fontSize: 10.0));
+    return infoWidget;
+    // return widget.materialInfoDialog
+    //     ? Material(color: Colors.transparent, child: infoWidget)
+    //     : infoWidget;
   }
 
   String getDate(int? date) => dateFormat(
