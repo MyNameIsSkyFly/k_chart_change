@@ -50,8 +50,7 @@ class KChartWidget extends StatefulWidget {
   final double mScaleX;
   final Function(double)? notiScale;
 
-  KChartWidget(
-      this.datas,
+  KChartWidget(this.datas,
       this.chartStyle,
       this.chartColors, {
         required this.isTrendLine,
@@ -87,9 +86,12 @@ class KChartWidget extends StatefulWidget {
 }
 
 class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
-  double mScaleX = 0.5, mScrollX = 0.0, mSelectX = 0.0;
+  double mScaleX = 0.5,
+      mScrollX = 0.0,
+      mSelectX = 0.0;
   StreamController<InfoWindowEntity?>? mInfoWindowStream;
-  double mHeight = 0, mWidth = 0;
+  double mHeight = 0,
+      mWidth = 0;
   AnimationController? _controller;
   Animation<double>? aniX;
 
@@ -107,7 +109,10 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   double _lastScale = 0.5;
-  bool isScale = false, isDrag = false, isLongPress = false, isOnTap = false;
+  bool isScale = false,
+      isDrag = false,
+      isLongPress = false,
+      isOnTap = false;
 
   @override
   void initState() {
@@ -415,22 +420,26 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(
                       infos.length,
-                          (index) => Padding(
-                        padding: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
-                        child: Text(
-                          translations.byIndex(index),
-                          style: TextStyle(
-                            color: widget.chartColors.infoWindowTitleColor,
-                            fontSize: 10.0,
+                          (index) =>
+                          Container(
+                            margin: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
+                            height: 14,
+                            child: Text(
+                              translations.byIndex(index),
+                              style: TextStyle(
+                                color: widget.chartColors.infoWindowTitleColor,
+                                fontSize: 10.0,
+                                height: 1.4,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -439,10 +448,13 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(
                       infos.length,
-                          (index) => Padding(
-                        padding: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
-                        child: _buildValueItem(infos[index]),
-                      ),
+                          (index) =>
+                          Container(
+                            margin: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
+                            alignment: Alignment.centerRight,
+                            height: 14,
+                            child: _buildValueItem(infos[index]),
+                          ),
                     ),
                   ),
                 ],
@@ -481,14 +493,19 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     if (info.startsWith("+"))
       color = widget.chartColors.infoWindowUpColor;
     else if (info.startsWith("-")) color = widget.chartColors.infoWindowDnColor;
-    final infoWidget = Text(info, style: TextStyle(color: color, fontSize: 10.0));
+    final infoWidget = Text(info, style: TextStyle(
+      color: color, fontSize: 10.0, height: 1.4,
+    ),);
     return infoWidget;
     // return widget.materialInfoDialog
     //     ? Material(color: Colors.transparent, child: infoWidget)
     //     : infoWidget;
   }
 
-  String getDate(int? date) => dateFormat(
-      DateTime.fromMillisecondsSinceEpoch(date ?? DateTime.now().millisecondsSinceEpoch),
-      widget.timeFormat);
+  String getDate(int? date) =>
+      dateFormat(
+          DateTime.fromMillisecondsSinceEpoch(date ?? DateTime
+              .now()
+              .millisecondsSinceEpoch),
+          widget.timeFormat);
 }

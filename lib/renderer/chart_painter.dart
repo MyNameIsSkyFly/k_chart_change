@@ -255,8 +255,8 @@ class ChartPainter extends BaseChartPainter {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
 
-    double w1 = 5;
-    double w2 = 3;
+    double w1 = 4;
+    double w2 = 2;
     double y = selectY; //getMainY(point.close);
     double x;
     bool isLeft = false;
@@ -270,8 +270,7 @@ class ChartPainter extends BaseChartPainter {
     TextPainter tp;
     if (!isInVolRect(Offset(selectX, y))) {
       tp =
-          getTextPainter(getMainYValue(y).toStringAsFixed(fixedLength), chartColors.crossTextColor,
-              style: TextStyle(fontSize: 12.0, color: chartColors.crossTextColor));
+          getTextPainter(getMainYValue(y).toStringAsFixed(fixedLength), chartColors.crossTextColor);
     } else {
       tp = getTextPainter(
           "${NumberUtil.format(mVolRenderer!.getVolYValue(y))}", chartColors.crossTextColor);
@@ -470,7 +469,10 @@ class ChartPainter extends BaseChartPainter {
     final space = this.chartStyle.nowPriceLineSpan + this.chartStyle.nowPriceLineLength;
     while (startX < max) {
       canvas.drawLine(Offset(startX, y), Offset(startX + this.chartStyle.nowPriceLineLength, y),
-          nowPricePaint..color = this.chartColors.vCrossColor);
+          Paint()
+            ..color = this.chartColors.hCrossColor
+            ..strokeWidth = this.chartStyle.hCrossWidth
+            ..isAntiAlias = true);
       startX += space;
     }
 
