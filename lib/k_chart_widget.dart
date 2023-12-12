@@ -49,49 +49,50 @@ class KChartWidget extends StatefulWidget {
   final String? iconName;
   final double mScaleX;
   final Function(double)? notiScale;
+  final CandleController? controller;
 
-  KChartWidget(this.datas,
-      this.chartStyle,
-      this.chartColors, {
-        required this.isTrendLine,
-        this.xFrontPadding = 100,
-        this.mainState = const [MainState.MA],
-        this.secondaryState = SecondaryState.MACD,
-        this.onSecondaryTap,
-        this.volHidden = false,
-        this.isLine = false,
-        this.isTapShowInfoDialog = false,
-        this.hideGrid = false,
-        @Deprecated('Use `translations` instead.') this.isChinese = false,
-        this.showNowPrice = true,
-        this.showInfoDialog = true,
-        this.materialInfoDialog = true,
-        this.translations = kChartTranslations,
-        this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
-        this.onLoadMore,
-        this.fixedLength = 2,
-        this.maDayList = const [5, 10, 20],
-        this.flingTime = 600,
-        this.flingRatio = 0.5,
-        this.flingCurve = Curves.decelerate,
-        this.isOnDrag,
-        this.verticalTextAlignment = VerticalTextAlignment.left,
-        this.iconName,
-        this.mScaleX = 0.5,
-        this.notiScale,
-      });
+  KChartWidget(
+    this.datas,
+    this.chartStyle,
+    this.chartColors, {
+    required this.isTrendLine,
+    this.xFrontPadding = 100,
+    this.mainState = const [MainState.MA],
+    this.secondaryState = SecondaryState.MACD,
+    this.onSecondaryTap,
+    this.volHidden = false,
+    this.isLine = false,
+    this.isTapShowInfoDialog = false,
+    this.hideGrid = false,
+    @Deprecated('Use `translations` instead.') this.isChinese = false,
+    this.showNowPrice = true,
+    this.showInfoDialog = true,
+    this.materialInfoDialog = true,
+    this.translations = kChartTranslations,
+    this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
+    this.onLoadMore,
+    this.fixedLength = 2,
+    this.maDayList = const [5, 10, 20],
+    this.flingTime = 600,
+    this.flingRatio = 0.5,
+    this.flingCurve = Curves.decelerate,
+    this.isOnDrag,
+    this.verticalTextAlignment = VerticalTextAlignment.left,
+    this.iconName,
+    this.mScaleX = 0.5,
+    this.notiScale,
+    this.controller,
+  });
 
   @override
   _KChartWidgetState createState() => _KChartWidgetState();
 }
 
-class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
-  double mScaleX = 0.5,
-      mScrollX = 0.0,
-      mSelectX = 0.0;
+class _KChartWidgetState extends State<KChartWidget>
+    with TickerProviderStateMixin {
+  double mScaleX = 0.5, mScrollX = 0.0, mSelectX = 0.0;
   StreamController<InfoWindowEntity?>? mInfoWindowStream;
-  double mHeight = 0,
-      mWidth = 0;
+  double mHeight = 0, mWidth = 0;
   AnimationController? _controller;
   Animation<double>? aniX;
 
@@ -109,10 +110,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   double _lastScale = 0.5;
-  bool isScale = false,
-      isDrag = false,
-      isLongPress = false,
-      isOnTap = false;
+  bool isScale = false, isDrag = false, isLongPress = false, isOnTap = false;
 
   @override
   void initState() {
@@ -121,6 +119,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     _lastScale = mScaleX;
     mInfoWindowStream = StreamController<InfoWindowEntity?>();
     mScrollX = mSelectX = widget.xFrontPadding / mScaleX / 5 * 3;
+    widget.controller?.scrollToRight = scrollToRight;
   }
 
   @override
@@ -185,9 +184,11 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
               widget.onSecondaryTap!();
             }
 
-            if (!widget.isTrendLine && _painter.isInMainRect(details.localPosition)) {
+            if (!widget.isTrendLine &&
+                _painter.isInMainRect(details.localPosition)) {
               isOnTap = !isOnTap;
-              if (mSelectX != details.localPosition.dx && widget.isTapShowInfoDialog) {
+              if (mSelectX != details.localPosition.dx &&
+                  widget.isTapShowInfoDialog) {
                 mSelectX = details.localPosition.dx;
                 mSelectY = details.localPosition.dy;
                 notifyChanged();
@@ -197,7 +198,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
               enableCordRecord = false;
               Offset p1 = Offset(getTrendLineX(), mSelectY);
               if (!waitingForOtherPairofCords)
-                lines.add(TrendLine(p1, Offset(-1, -1), trendLineMax!, trendLineScale!));
+                lines.add(TrendLine(
+                    p1, Offset(-1, -1), trendLineMax!, trendLineScale!));
 
               if (waitingForOtherPairofCords) {
                 var a = lines.last;
@@ -252,7 +254,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
           onLongPressStart: (details) {
             isOnTap = true;
             isLongPress = true;
-            if ((mSelectX != details.localPosition.dx || mSelectY != details.globalPosition.dy) &&
+            if ((mSelectX != details.localPosition.dx ||
+                    mSelectY != details.globalPosition.dy) &&
                 !widget.isTrendLine) {
               mSelectX = details.localPosition.dx;
               mSelectY = details.localPosition.dy;
@@ -272,16 +275,19 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             }
           },
           onLongPressMoveUpdate: (details) {
-            if ((mSelectX != details.localPosition.dx || mSelectY != details.globalPosition.dy) &&
+            if ((mSelectX != details.localPosition.dx ||
+                    mSelectY != details.globalPosition.dy) &&
                 !widget.isTrendLine) {
               mSelectX = details.localPosition.dx;
               mSelectY = details.localPosition.dy;
               notifyChanged();
             }
             if (widget.isTrendLine) {
-              mSelectX = mSelectX + (details.localPosition.dx - changeinXposition!);
+              mSelectX =
+                  mSelectX + (details.localPosition.dx - changeinXposition!);
               changeinXposition = details.localPosition.dx;
-              mSelectY = mSelectY + (details.globalPosition.dy - changeinYposition!);
+              mSelectY =
+                  mSelectY + (details.globalPosition.dy - changeinYposition!);
               changeinYposition = details.globalPosition.dy;
               notifyChanged();
             }
@@ -303,11 +309,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
                   right: mWidth / 6,
                   bottom: mHeight * 0.25,
                   child: IconButton(
-                    onPressed: () {
-                      mScrollX = mSelectX = widget.xFrontPadding / mScaleX / 5 * 3;
-                      showBtn = mScrollX > widget.xFrontPadding / mScaleX;
-                      notifyChanged();
-                    },
+                    onPressed: () => scrollToRight(),
                     icon: Image.asset(
                       widget.iconName!,
                       width: 28,
@@ -322,6 +324,12 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
         );
       },
     );
+  }
+
+  void scrollToRight() {
+    mScrollX = mSelectX = widget.xFrontPadding / mScaleX / 5 * 3;
+    showBtn = mScrollX > widget.xFrontPadding / mScaleX;
+    notifyChanged();
   }
 
   void _stopAnimation({bool needNotify = true}) {
@@ -342,11 +350,12 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   void _onFling(double x) {
-    _controller =
-        AnimationController(duration: Duration(milliseconds: widget.flingTime), vsync: this);
+    _controller = AnimationController(
+        duration: Duration(milliseconds: widget.flingTime), vsync: this);
     aniX = null;
     aniX = Tween<double>(begin: mScrollX, end: x * widget.flingRatio + mScrollX)
-        .animate(CurvedAnimation(parent: _controller!.view, curve: widget.flingCurve));
+        .animate(CurvedAnimation(
+            parent: _controller!.view, curve: widget.flingCurve));
     aniX!.addListener(() {
       mScrollX = aniX!.value;
       if (mScrollX <= 0) {
@@ -365,7 +374,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       notifyChanged();
     });
     aniX!.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         _onDragChanged(false);
         notifyChanged();
       }
@@ -406,17 +416,20 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             '${NumberUtil.format(entity.vol)}',
             if (entityAmount != null) '${NumberUtil.format(entityAmount)}'
           ];
-          final translations =
-          widget.isChinese ? kChartTranslations['zh_CN']! : widget.translations.of(context);
+          final translations = widget.isChinese
+              ? kChartTranslations['zh_CN']!
+              : widget.translations.of(context);
           return Align(
-            alignment: snapshot.data!.isLeft ? Alignment.topLeft : Alignment.topRight,
+            alignment:
+                snapshot.data!.isLeft ? Alignment.topLeft : Alignment.topRight,
             child: Container(
               margin: EdgeInsets.only(left: 15, right: 15, top: 20),
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: widget.chartColors.selectFillColor,
                 borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: widget.chartColors.selectBorderColor, width: 0.5),
+                border: Border.all(
+                    color: widget.chartColors.selectBorderColor, width: 0.5),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -427,19 +440,19 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(
                       infos.length,
-                          (index) =>
-                          Container(
-                            margin: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
-                            height: 14,
-                            child: Text(
-                              translations.byIndex(index),
-                              style: TextStyle(
-                                color: widget.chartColors.infoWindowTitleColor,
-                                fontSize: 10.0,
-                                height: 1.4,
-                              ),
-                            ),
+                      (index) => Container(
+                        margin: EdgeInsets.only(
+                            bottom: index == infos.length - 1 ? 0 : 2),
+                        height: 14,
+                        child: Text(
+                          translations.byIndex(index),
+                          style: TextStyle(
+                            color: widget.chartColors.infoWindowTitleColor,
+                            fontSize: 10.0,
+                            height: 1.4,
                           ),
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -448,13 +461,13 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(
                       infos.length,
-                          (index) =>
-                          Container(
-                            margin: EdgeInsets.only(bottom: index == infos.length - 1 ? 0 : 2),
-                            alignment: Alignment.centerRight,
-                            height: 14,
-                            child: _buildValueItem(infos[index]),
-                          ),
+                      (index) => Container(
+                        margin: EdgeInsets.only(
+                            bottom: index == infos.length - 1 ? 0 : 2),
+                        alignment: Alignment.centerRight,
+                        height: 14,
+                        child: _buildValueItem(infos[index]),
+                      ),
                     ),
                   ),
                 ],
@@ -493,19 +506,26 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     if (info.startsWith("+"))
       color = widget.chartColors.infoWindowUpColor;
     else if (info.startsWith("-")) color = widget.chartColors.infoWindowDnColor;
-    final infoWidget = Text(info, style: TextStyle(
-      color: color, fontSize: 10.0, height: 1.4,
-    ),);
+    final infoWidget = Text(
+      info,
+      style: TextStyle(
+        color: color,
+        fontSize: 10.0,
+        height: 1.4,
+      ),
+    );
     return infoWidget;
     // return widget.materialInfoDialog
     //     ? Material(color: Colors.transparent, child: infoWidget)
     //     : infoWidget;
   }
 
-  String getDate(int? date) =>
-      dateFormat(
-          DateTime.fromMillisecondsSinceEpoch(date ?? DateTime
-              .now()
-              .millisecondsSinceEpoch),
-          widget.timeFormat);
+  String getDate(int? date) => dateFormat(
+      DateTime.fromMillisecondsSinceEpoch(
+          date ?? DateTime.now().millisecondsSinceEpoch),
+      widget.timeFormat);
+}
+
+class CandleController {
+   VoidCallback? scrollToRight;
 }
